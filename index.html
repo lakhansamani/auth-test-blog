@@ -74,7 +74,7 @@
       logoutBtn.addEventListener('click', function () {
         console.log('clicked');
         webAuth.logout({
-          redirectUri: window.location.origin,
+          returnTo: window.location.origin,
         });
       });
 
