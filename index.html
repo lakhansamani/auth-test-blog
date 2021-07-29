@@ -10,9 +10,33 @@
         font-family: Verdana, Geneva, Tahoma, sans-serif;
         padding: 50px;
       }
+      .nav {
+        display: flex;
+        justify-content: space-between;
+      }
+
+      .show {
+        display: block;
+      }
+
+      .hide {
+        display: none;
+      }
+
+      .logout-link {
+        color: dodgerblue;
+        cursor: pointer;
+      }
     </style>
   </head>
   <body>
+    <nav class="nav">
+      <div id="user"></div>
+      <div class="hide" id="logout-section">
+        <span id="logout" class="logout-link">logout</span>
+      </div>
+    </nav>
+    <br />
     <h1>Hello World 👋</h1>
     <p>
       Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
@@ -35,5 +59,52 @@
       cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id
       est laborum.
     </p>
+    <script src="https://cdn.auth0.com/js/auth0/9.11/auth0.min.js"></script>
+    <script type="text/javascript">
+      const userSection = document.getElementById('user');
+      const logoutSection = document.getElementById('logout-section');
+      const logoutBtn = document.getElementById('logout');
+
+      const webAuth = new auth0.WebAuth({
+        domain: 'dev-djg8flap.us.auth0.com',
+        clientID: 'Lwmv2DX2CRaSAIzTmXMj2ToQIQT2P7Si',
+        redirectUri: window.location.origin,
+      });
+
+      logoutBtn.addEventListener('click', function () {
+        console.log('clicked');
+        webAuth.logout({
+          redirectUri: window.location.origin,
+        });
+      });
+
+      webAuth.checkSession(
+        {
+          responseType: 'code token id_token',
+          scope: 'read:current_user openid profile email',
+        },
+        function (err, authResult) {
+          // Authentication tokens or error
+          console.log({ authResult, err });
+          if (err) {
+            webAuth.authorize({
+              responseType: 'code token id_token',
+              redirectUri: window.location.origin,
+              scope: 'openid profile email',
+            });
+          } else {
+            logoutSection.classList.toggle('hide');
+            webAuth.client.userInfo(
+              authResult.accessToken,
+              function (err, user) {
+                if (user.email) {
+                  userSection.innerHTML = `Welcome, ${user.email}`;
+                }
+              }
+            );
+          }
+        }
+      );
+    </script>
   </body>
 </html>
