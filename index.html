@@ -10,9 +10,33 @@
         font-family: Verdana, Geneva, Tahoma, sans-serif;
         padding: 50px;
       }
+      .nav {
+        display: flex;
+        justify-content: space-between;
+      }
+
+      .show {
+        display: block;
+      }
+
+      .hide {
+        display: none;
+      }
+
+      .logout-link {
+        color: dodgerblue;
+        cursor: pointer;
+      }
     </style>
   </head>
   <body>
+    <nav class="nav">
+      <div id="user"></div>
+      <div class="hide" id="logout-section">
+        <span id="logout" class="logout-link">logout</span>
+      </div>
+    </nav>
+    <br />
     <h1>Hello World 👋</h1>
     <p>
       Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
@@ -35,5 +59,30 @@
       cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id
       est laborum.
     </p>
+    <script src="https://unpkg.com/@authorizerdev/authorizer-js@0.1.0-beta.3/lib/index.js"></script>
+    <script type="text/javascript">
+      const userSection = document.getElementById('user');
+      const logoutSection = document.getElementById('logout-section');
+      const logoutBtn = document.getElementById('logout');
+
+      const authorizerRef = new Authorizer({
+        authorizerURL: 'https://authorizer-demo.herokuapp.com',
+        redirectURL: window.location.origin,
+      });
+
+      logoutBtn.addEventListener('click', async function () {
+        await authorizerRef.logout();
+        window.location.href = '/';
+      });
+
+      async function onLoad() {
+        const res = await authorizerRef.fingertipLogin();
+        if (res.user) {
+          logoutSection.classList.toggle('hide');
+          userSection.innerHTML = `Welcome, ${res.user.email}`;
+        }
+      }
+      onLoad();
+    </script>
   </body>
 </html>
