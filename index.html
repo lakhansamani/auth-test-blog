@@ -1,110 +1,195 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>My Blog</title>
-    <style>
-      body {
-        font-family: Verdana, Geneva, Tahoma, sans-serif;
-        padding: 50px;
-      }
-      .nav {
-        display: flex;
-        justify-content: space-between;
-      }
+	<head>
+		<meta charset="UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>My Blog</title>
+		<style>
+			body {
+				font-family: Verdana, Geneva, Tahoma, sans-serif;
+				padding: 50px;
+			}
+			.nav {
+				display: flex;
+				justify-content: space-between;
+			}
 
-      .show {
-        display: block;
-      }
+			.show {
+				display: block;
+			}
 
-      .hide {
-        display: none;
-      }
+			.hide {
+				display: none;
+			}
 
-      .logout-link {
-        color: dodgerblue;
-        cursor: pointer;
-      }
-    </style>
-  </head>
-  <body>
-    <nav class="nav">
-      <div id="user"></div>
-      <div class="hide" id="logout-section">
-        <span id="logout" class="logout-link">logout</span>
-      </div>
-    </nav>
-    <br />
-    <h1>Hello World 👋</h1>
-    <p>
-      Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-      tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
-      veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
-      commodo consequat. Duis aute irure dolor in reprehenderit in voluptate
-      velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat
-      cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id
-      est laborum.
-    </p>
-    <br />
-    <hr />
-    <h1>Foo Bar!</h1>
-    <p>
-      Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-      tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
-      veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
-      commodo consequat. Duis aute irure dolor in reprehenderit in voluptate
-      velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat
-      cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id
-      est laborum.
-    </p>
-    <script src="https://cdn.auth0.com/js/auth0/9.11/auth0.min.js"></script>
-    <script type="text/javascript">
-      const userSection = document.getElementById('user');
-      const logoutSection = document.getElementById('logout-section');
-      const logoutBtn = document.getElementById('logout');
+			.logout-link {
+				color: dodgerblue;
+				cursor: pointer;
+			}
+		</style>
+	</head>
+	<body>
+		<nav class="nav">
+			<div id="user"></div>
+			<div class="hide" id="logout-section">
+				<span id="logout" class="logout-link">logout</span>
+			</div>
+			<button id="mfa-toggle">Toggle MFA</button>
+		</nav>
+		<br />
+		<h1>Hello World 👋</h1>
+		<p>
+			Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
+			tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
+			veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
+			commodo consequat. Duis aute irure dolor in reprehenderit in voluptate
+			velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat
+			cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id
+			est laborum.
+		</p>
+		<br />
+		<hr />
 
-      const webAuth = new auth0.WebAuth({
-        domain: 'dev-jt05ten5.us.auth0.com',
-        clientID: 'FjeE3CweGGgi3RuIHD82kgkNDcczad8l',
-        redirectUri: window.location.origin,
-      });
+		<!-- <script src="https://cdn.auth0.com/js/auth0-spa-js/1.20/auth0-spa-js.production.js"></script> -->
+		<script src="https://cdn.auth0.com/js/auth0/9.18/auth0.min.js"></script>
+		<script type="text/javascript">
+			const userSection = document.getElementById('user');
+			const logoutSection = document.getElementById('logout-section');
+			const logoutBtn = document.getElementById('logout');
+			const mfaToggle = document.getElementById('mfa-toggle');
+			let id = `google-oauth2|112602878524248073112`;
+			let is_mfa_enabled = false;
 
-      logoutBtn.addEventListener('click', function () {
-        console.log('clicked');
-        webAuth.logout({
-          returnTo: window.location.origin,
-        });
-      });
+			var webAuth = new auth0.WebAuth({
+				domain: 'dev-jt05ten5.us.auth0.com',
+				clientID: 'QpBqvujff4tdm36uBoX375O8FNHKv81o',
+				redirectUri: 'http://localhost:8000',
+			});
+			logoutBtn.addEventListener('click', function () {
+				console.log('clicked');
+				webAuth.logout({
+					returnTo: `http://localhost:8000`,
+				});
+			});
 
-      webAuth.checkSession(
-        {
-          responseType: 'code token id_token',
-          scope: 'read:current_user openid profile email',
-        },
-        function (err, authResult) {
-          // Authentication tokens or error
-          console.log({ authResult, err });
-          if (err) {
-            webAuth.authorize({
-              responseType: 'code token id_token',
-              redirectUri: window.location.origin,
-              scope: 'openid profile email',
-            });
-          } else {
-            logoutSection.classList.toggle('hide');
-            webAuth.client.userInfo(
-              authResult.accessToken,
-              function (err, user) {
-                if (user.email) {
-                  userSection.innerHTML = `Welcome, ${user.email}`;
-                }
-              }
-            );
-          }
-        }
-      );
-    </script>
-  </body>
+			mfaToggle.addEventListener('click', async function () {
+				console.log({ id });
+				if (id) {
+					// const tokenRes = await fetch(
+					// 	`https://dev-jt05ten5.us.auth0.com/oauth/token`,
+					// 	{
+					// 		method: 'POST',
+					// 		headers: {
+					// 			'Content-Type': 'application/json',
+					// 		},
+					// 		body: JSON.stringify({
+					// 			client_id: 'FpDhfp63vkOt32iAaGcYGddRt7TbSJKn',
+					// 			client_secret:
+					// 				'GJATOAcBu2j3R1oxjtM0Wjshl81ZHJqFt3e6vJokSFVGeRWgNrtpU0gCDrjImtO1',
+					// 			audience: 'https://dev-jt05ten5.us.auth0.com/api/v2/',
+					// 			grant_type: 'client_credentials',
+					// 		}),
+					// 	}
+					// );
+					// const token = await tokenRes.json();
+					const res = await fetch(
+						`https://dev-jt05ten5.us.auth0.com/api/v2/users/${id}`,
+						{
+							method: 'PATCH',
+							headers: {
+								'Content-Type': 'application/json',
+								Authorization: `Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IjB0VjFBVmNOSVhuMUQ1ZW1yZFducSJ9.eyJpc3MiOiJodHRwczovL2Rldi1qdDA1dGVuNS51cy5hdXRoMC5jb20vIiwic3ViIjoiUEdEVUZvQUFGNWV0WllLNktjd0FaSWZIV0R4UWZmcVhAY2xpZW50cyIsImF1ZCI6Imh0dHBzOi8vZGV2LWp0MDV0ZW41LnVzLmF1dGgwLmNvbS9hcGkvdjIvIiwiaWF0IjoxNjQ2NzM4Njc1LCJleHAiOjE2NDY4MjUwNzUsImF6cCI6IlBHRFVGb0FBRjVldFpZSzZLY3dBWklmSFdEeFFmZnFYIiwic2NvcGUiOiJyZWFkOmNsaWVudF9ncmFudHMgY3JlYXRlOmNsaWVudF9ncmFudHMgZGVsZXRlOmNsaWVudF9ncmFudHMgdXBkYXRlOmNsaWVudF9ncmFudHMgcmVhZDp1c2VycyB1cGRhdGU6dXNlcnMgZGVsZXRlOnVzZXJzIGNyZWF0ZTp1c2VycyByZWFkOnVzZXJzX2FwcF9tZXRhZGF0YSB1cGRhdGU6dXNlcnNfYXBwX21ldGFkYXRhIGRlbGV0ZTp1c2Vyc19hcHBfbWV0YWRhdGEgY3JlYXRlOnVzZXJzX2FwcF9tZXRhZGF0YSByZWFkOnVzZXJfY3VzdG9tX2Jsb2NrcyBjcmVhdGU6dXNlcl9jdXN0b21fYmxvY2tzIGRlbGV0ZTp1c2VyX2N1c3RvbV9ibG9ja3MgY3JlYXRlOnVzZXJfdGlja2V0cyByZWFkOmNsaWVudHMgdXBkYXRlOmNsaWVudHMgZGVsZXRlOmNsaWVudHMgY3JlYXRlOmNsaWVudHMgcmVhZDpjbGllbnRfa2V5cyB1cGRhdGU6Y2xpZW50X2tleXMgZGVsZXRlOmNsaWVudF9rZXlzIGNyZWF0ZTpjbGllbnRfa2V5cyByZWFkOmNvbm5lY3Rpb25zIHVwZGF0ZTpjb25uZWN0aW9ucyBkZWxldGU6Y29ubmVjdGlvbnMgY3JlYXRlOmNvbm5lY3Rpb25zIHJlYWQ6cmVzb3VyY2Vfc2VydmVycyB1cGRhdGU6cmVzb3VyY2Vfc2VydmVycyBkZWxldGU6cmVzb3VyY2Vfc2VydmVycyBjcmVhdGU6cmVzb3VyY2Vfc2VydmVycyByZWFkOmRldmljZV9jcmVkZW50aWFscyB1cGRhdGU6ZGV2aWNlX2NyZWRlbnRpYWxzIGRlbGV0ZTpkZXZpY2VfY3JlZGVudGlhbHMgY3JlYXRlOmRldmljZV9jcmVkZW50aWFscyByZWFkOnJ1bGVzIHVwZGF0ZTpydWxlcyBkZWxldGU6cnVsZXMgY3JlYXRlOnJ1bGVzIHJlYWQ6cnVsZXNfY29uZmlncyB1cGRhdGU6cnVsZXNfY29uZmlncyBkZWxldGU6cnVsZXNfY29uZmlncyByZWFkOmhvb2tzIHVwZGF0ZTpob29rcyBkZWxldGU6aG9va3MgY3JlYXRlOmhvb2tzIHJlYWQ6YWN0aW9ucyB1cGRhdGU6YWN0aW9ucyBkZWxldGU6YWN0aW9ucyBjcmVhdGU6YWN0aW9ucyByZWFkOmVtYWlsX3Byb3ZpZGVyIHVwZGF0ZTplbWFpbF9wcm92aWRlciBkZWxldGU6ZW1haWxfcHJvdmlkZXIgY3JlYXRlOmVtYWlsX3Byb3ZpZGVyIGJsYWNrbGlzdDp0b2tlbnMgcmVhZDpzdGF0cyByZWFkOmluc2lnaHRzIHJlYWQ6dGVuYW50X3NldHRpbmdzIHVwZGF0ZTp0ZW5hbnRfc2V0dGluZ3MgcmVhZDpsb2dzIHJlYWQ6bG9nc191c2VycyByZWFkOnNoaWVsZHMgY3JlYXRlOnNoaWVsZHMgdXBkYXRlOnNoaWVsZHMgZGVsZXRlOnNoaWVsZHMgcmVhZDphbm9tYWx5X2Jsb2NrcyBkZWxldGU6YW5vbWFseV9ibG9ja3MgdXBkYXRlOnRyaWdnZXJzIHJlYWQ6dHJpZ2dlcnMgcmVhZDpncmFudHMgZGVsZXRlOmdyYW50cyByZWFkOmd1YXJkaWFuX2ZhY3RvcnMgdXBkYXRlOmd1YXJkaWFuX2ZhY3RvcnMgcmVhZDpndWFyZGlhbl9lbnJvbGxtZW50cyBkZWxldGU6Z3VhcmRpYW5fZW5yb2xsbWVudHMgY3JlYXRlOmd1YXJkaWFuX2Vucm9sbG1lbnRfdGlja2V0cyByZWFkOnVzZXJfaWRwX3Rva2VucyBjcmVhdGU6cGFzc3dvcmRzX2NoZWNraW5nX2pvYiBkZWxldGU6cGFzc3dvcmRzX2NoZWNraW5nX2pvYiByZWFkOmN1c3RvbV9kb21haW5zIGRlbGV0ZTpjdXN0b21fZG9tYWlucyBjcmVhdGU6Y3VzdG9tX2RvbWFpbnMgdXBkYXRlOmN1c3RvbV9kb21haW5zIHJlYWQ6ZW1haWxfdGVtcGxhdGVzIGNyZWF0ZTplbWFpbF90ZW1wbGF0ZXMgdXBkYXRlOmVtYWlsX3RlbXBsYXRlcyByZWFkOm1mYV9wb2xpY2llcyB1cGRhdGU6bWZhX3BvbGljaWVzIHJlYWQ6cm9sZXMgY3JlYXRlOnJvbGVzIGRlbGV0ZTpyb2xlcyB1cGRhdGU6cm9sZXMgcmVhZDpwcm9tcHRzIHVwZGF0ZTpwcm9tcHRzIHJlYWQ6YnJhbmRpbmcgdXBkYXRlOmJyYW5kaW5nIGRlbGV0ZTpicmFuZGluZyByZWFkOmxvZ19zdHJlYW1zIGNyZWF0ZTpsb2dfc3RyZWFtcyBkZWxldGU6bG9nX3N0cmVhbXMgdXBkYXRlOmxvZ19zdHJlYW1zIGNyZWF0ZTpzaWduaW5nX2tleXMgcmVhZDpzaWduaW5nX2tleXMgdXBkYXRlOnNpZ25pbmdfa2V5cyByZWFkOmxpbWl0cyB1cGRhdGU6bGltaXRzIGNyZWF0ZTpyb2xlX21lbWJlcnMgcmVhZDpyb2xlX21lbWJlcnMgZGVsZXRlOnJvbGVfbWVtYmVycyByZWFkOmVudGl0bGVtZW50cyByZWFkOmF0dGFja19wcm90ZWN0aW9uIHVwZGF0ZTphdHRhY2tfcHJvdGVjdGlvbiByZWFkOm9yZ2FuaXphdGlvbnNfc3VtbWFyeSByZWFkOm9yZ2FuaXphdGlvbnMgdXBkYXRlOm9yZ2FuaXphdGlvbnMgY3JlYXRlOm9yZ2FuaXphdGlvbnMgZGVsZXRlOm9yZ2FuaXphdGlvbnMgY3JlYXRlOm9yZ2FuaXphdGlvbl9tZW1iZXJzIHJlYWQ6b3JnYW5pemF0aW9uX21lbWJlcnMgZGVsZXRlOm9yZ2FuaXphdGlvbl9tZW1iZXJzIGNyZWF0ZTpvcmdhbml6YXRpb25fY29ubmVjdGlvbnMgcmVhZDpvcmdhbml6YXRpb25fY29ubmVjdGlvbnMgdXBkYXRlOm9yZ2FuaXphdGlvbl9jb25uZWN0aW9ucyBkZWxldGU6b3JnYW5pemF0aW9uX2Nvbm5lY3Rpb25zIGNyZWF0ZTpvcmdhbml6YXRpb25fbWVtYmVyX3JvbGVzIHJlYWQ6b3JnYW5pemF0aW9uX21lbWJlcl9yb2xlcyBkZWxldGU6b3JnYW5pemF0aW9uX21lbWJlcl9yb2xlcyBjcmVhdGU6b3JnYW5pemF0aW9uX2ludml0YXRpb25zIHJlYWQ6b3JnYW5pemF0aW9uX2ludml0YXRpb25zIGRlbGV0ZTpvcmdhbml6YXRpb25faW52aXRhdGlvbnMiLCJndHkiOiJjbGllbnQtY3JlZGVudGlhbHMifQ.1xllK1X8u8fQ4F_qWvT55KCs7_SlVMu0k2vfkfp5DpHnJDeP0oYEQq-mYXaELMezC3qKZZC68Jm5K74LuPYykA1scMrATnxh1qPD0OQq4onN406E2MI0eco_ik11Rg6vYhkjsDTUikAYnyoo-Vsa5A-9MSX77Mn9L8FFHRoerbRJNLqoAP83B7op-4HpVXrCitn0n-FaNGe5m6a9NM1jeidasf5lXGBOkuzPSVCXcqITDzD36dAUur6_u_b7VG7xTDKNkro-w-Y5gxr9TZmqQhwCBPTtG0BjqQarOqusNkmqeq8qgFe03JvFLywz98ogRVk6QVoJ5Or8QcYqF_6gkA`,
+							},
+							body: JSON.stringify({
+								user_metadata: {
+									is_mfa_enabled: !is_mfa_enabled,
+								},
+							}),
+						}
+					);
+
+					console.log(res);
+
+					is_mfa_enabled = !is_mfa_enabled;
+					mfaToggle.innerText = is_mfa_enabled ? 'Disable MFA' : 'Enable MFA';
+					// re-authorize to enroll for MFA
+					await webAuth.authorize({
+						responseType: 'token id_token',
+						redirectUri: window.location.origin,
+						scope: 'openid profile email offline_access',
+					});
+				}
+			});
+
+			function init() {
+				webAuth.checkSession(
+					{
+						responseType: 'token id_token',
+						scope: 'openid profile email user_metadata update:users',
+					},
+					async function (err, authResult) {
+						// Authentication tokens or error
+						console.log({ err, authResult });
+						if (authResult) {
+							const user = await webAuth.client.userInfo(
+								authResult.accessToken,
+								function (err, user) {
+									console.log({ user, err });
+									if (user) {
+										id = user.sub;
+										logoutSection.classList.toggle('hide');
+										userSection.innerHTML = `Welcome, ${user.email}`;
+										is_mfa_enabled =
+											user['https://cloud.arangodb.com/'].is_mfa_enabled;
+										if (is_mfa_enabled) {
+											mfaToggle.innerHTML = 'Disable MFA';
+										} else {
+											mfaToggle.innerHTML = 'Enable MFA';
+										}
+									}
+								}
+							);
+						} else {
+							const res = await webAuth.authorize({
+								responseType: 'token id_token',
+								redirectUri: window.location.origin,
+								scope:
+									'openid profile email offline_access user_metadata update:users',
+							});
+						}
+					}
+				);
+			}
+
+			init();
+			// const init = async () => {
+			// 	const auth0 = await createAuth0Client({
+			// 		domain: 'dev-jt05ten5.us.auth0.com',
+			// 		client_id: 'QpBqvujff4tdm36uBoX375O8FNHKv81o',
+			// 		redirect_uri: window.location.origin,
+			// 		scope: 'openid profile email',
+			// 		response_type: 'token',
+			// 		response_mode: 'query',
+			// 		useRefreshTokens: true,
+			// 	});
+
+			// 	console.log({ auth0 });
+			// 	const session = await auth0.checkSession();
+			// 	console.log({ session });
+			// 	try {
+			// 		// const res = auth0.loginWithRedirect();
+			// 		const data = await auth0.getTokenSilently();
+			// 		console.log({ data });
+			// 		const user = await auth0.getIdTokenClaims();
+			// 		console.log({ user });
+			// 	} catch (err) {
+			// 		console.log('heree...');
+			// 		console.log(err);
+			// 		await auth0.loginWithRedirect();
+			// 	}
+			// };
+			// init();
+		</script>
+	</body>
 </html>
