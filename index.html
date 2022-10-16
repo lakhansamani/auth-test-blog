@@ -1,39 +1,105 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>My Blog</title>
-    <style>
-      body {
-        font-family: Verdana, Geneva, Tahoma, sans-serif;
-        padding: 50px;
-      }
-    </style>
-  </head>
-  <body>
-    <h1>Hello World 👋</h1>
-    <p>
-      Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-      tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
-      veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
-      commodo consequat. Duis aute irure dolor in reprehenderit in voluptate
-      velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat
-      cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id
-      est laborum.
-    </p>
-    <br />
-    <hr />
-    <h1>Foo Bar!</h1>
-    <p>
-      Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-      tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
-      veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
-      commodo consequat. Duis aute irure dolor in reprehenderit in voluptate
-      velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat
-      cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id
-      est laborum.
-    </p>
-  </body>
+	<head>
+		<meta charset="UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>My Blog</title>
+		<style>
+			body {
+				font-family: Verdana, Geneva, Tahoma, sans-serif;
+				padding: 50px;
+			}
+			.nav {
+				display: flex;
+				justify-content: space-between;
+			}
+
+			.show {
+				display: block;
+			}
+
+			.hide {
+				display: none;
+			}
+
+			.logout-link {
+				color: dodgerblue;
+				cursor: pointer;
+			}
+		</style>
+	</head>
+	<body>
+		<nav class="nav">
+			<div id="user"></div>
+			<div class="hide" id="logout-section">
+				<span id="logout" class="logout-link">logout</span>
+			</div>
+		</nav>
+		<br />
+		<h1>Hello World 👋</h1>
+		<p>
+			Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
+			tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
+			veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
+			commodo consequat. Duis aute irure dolor in reprehenderit in voluptate
+			velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat
+			cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id
+			est laborum.
+		</p>
+		<br />
+		<hr />
+		<h1>Foo Bar!</h1>
+		<p>
+			Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
+			tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
+			veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
+			commodo consequat. Duis aute irure dolor in reprehenderit in voluptate
+			velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat
+			cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id
+			est laborum.
+		</p>
+		<script src="https://unpkg.com/@authorizerdev/authorizer-js/lib/authorizer.min.js"></script>
+		<script type="text/javascript">
+			const userSection = document.getElementById('user');
+			const logoutSection = document.getElementById('logout-section');
+			const logoutBtn = document.getElementById('logout');
+
+			const authorizerRef = new authorizerdev.Authorizer({
+				authorizerURL: 'https://authorizer-production-6455.up.railway.app',
+				redirectURL: window.location.origin,
+				clientID: 'ee3b1e66-947b-4646-999e-0e663ab47efe'
+			});
+
+			logoutBtn.addEventListener('click', async function () {
+				await authorizerRef.logout();
+				window.location.href = '/';
+			});
+
+			async function onLoad() {
+// 				const res = await authorizerRef.fingertipLogin();
+// 				if (res && res.user) {
+// 					logoutSection.classList.toggle('hide');
+// 					userSection.innerHTML = `Welcome, ${res.user.email}`;
+// 				}
+				
+				const res = await authorizerRef.authorize({
+				      response_type: 'code',
+				      response_mode: 'form_post',
+				      use_refresh_token: false,
+				})
+				if (res && res.access_token) {
+				      // you can use user information here, eg:
+				      const user = await authorizerRef.getProfile({
+					Authorization: `Bearer ${res.access_token}`,
+				      })
+				      const userSection = document.getElementById('user')
+				      const logoutSection = document.getElementById('logout-section')
+				      logoutSection.classList.toggle('hide')
+				      userSection.innerHTML = `Welcome, ${user.email}`
+				}
+			}
+			onLoad();
+		</script>
+	</body>
 </html>
