@@ -85,6 +85,7 @@
 				
 				const res = await authorizerRef.authorize({
 				      response_type: 'code',
+				      response_mode: 'form_post',
 				      use_refresh_token: false,
 				})
 				if (res && res.access_token) {
